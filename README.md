@@ -23,6 +23,3 @@ Run the following steps to ensure CoastSat dependencies.
 4. Deactivate environment
 
 `conda deactivate`
-
-## Learning
-1. Object Oriented Programming in Python
