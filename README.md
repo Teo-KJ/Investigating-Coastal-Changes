@@ -12,4 +12,10 @@ Run the following steps to ensure CoastSat dependencies.
 
 2. Activate and use environment
 
+> Activate environment
+
 `conda activate coastsat`
+
+3. Open Jupyter Notebook
+
+`jupyter notebook`
