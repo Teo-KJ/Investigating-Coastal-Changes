@@ -19,3 +19,7 @@ Run the following steps to ensure CoastSat dependencies.
 3. Open Jupyter Notebook
 
 `jupyter notebook`
+
+4. Deactivate environment
+
+`conda deactivate`
