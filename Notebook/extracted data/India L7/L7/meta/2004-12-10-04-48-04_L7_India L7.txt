@@ -1,0 +1,3 @@
+filename	2004-12-10-04-48-04_L7_India L7_pan.tif
+acc_georef	4.311999797821045
+epsg	32644
