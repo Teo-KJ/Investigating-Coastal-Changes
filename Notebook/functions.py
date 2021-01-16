@@ -47,4 +47,4 @@ def plotHistoricalShorelines(output, sitename):
     
     plt.legend();
     plt.show()
-    plt.savefig('Historical Shorelines\' + sitename + '.jpg')
+    plt.savefig('Historical Shorelines/' + sitename + '.jpg')
