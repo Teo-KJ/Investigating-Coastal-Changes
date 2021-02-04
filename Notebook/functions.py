@@ -1,5 +1,8 @@
 import matplotlib
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+import plotly.express as px
+import pandas as pd
 
 def settings(inputs):
     settings = { 
@@ -48,3 +51,39 @@ def plotHistoricalShorelines(output, sitename):
     plt.legend();
     plt.show()
     plt.savefig('Historical Shorelines/' + sitename + '.jpg')
+    
+def zoomInShorelines(output):
+    fig = plt.figure(figsize=[15,8])
+
+    plt.axis('equal')
+    plt.xlabel('Eastings')
+    plt.ylabel('Northings')
+    plt.grid(linestyle=':', color='0.5')
+
+    for i in range(len(output['shorelines'])):
+        sl = output['shorelines'][i]
+        date = output['dates'][i]
+        plt.margins(x=0, y=-0.25)
+        plt.plot(sl[:,0], sl[:,1], '.', label=date.strftime('%d-%m-%Y'))
+    
+    plt.legend();
+    plt.show()
+    
+def shorelinePlotly(output):
+    DF = pd.DataFrame()
+    
+    for i in range(len(output['shorelines'])):
+        DF = pd.concat([DF, pd.DataFrame({'date': output['dates'][i], 'col1': output['shorelines'][i][:,0], 'col2': output['shorelines'][i][:,1]})])
+    
+    DF['date'] = DF['date'].astype(str).apply(lambda x: x[:10])
+    
+    fig = px.scatter(DF, x="col1", y="col2", color="date")
+    fig.update_yaxes(
+        scaleanchor = "x",
+        scaleratio = 1
+      )
+    fig.update_xaxes(
+        scaleanchor = "x",
+        scaleratio = 1
+      )
+    fig.show()
