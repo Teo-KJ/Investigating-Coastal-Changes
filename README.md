@@ -26,3 +26,4 @@ Run the following steps to ensure CoastSat dependencies.
 
 ## Learning
 1. Object Oriented Programming in Python
+2. Plotly and Matplotlib improved visualisation
