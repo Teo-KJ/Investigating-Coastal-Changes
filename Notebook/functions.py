@@ -73,11 +73,11 @@ def shorelinePlotly(output):
     DF = pd.DataFrame()
     
     for i in range(len(output['shorelines'])):
-        DF = pd.concat([DF, pd.DataFrame({'date': output['dates'][i], 'col1': output['shorelines'][i][:,0], 'col2': output['shorelines'][i][:,1]})])
+        DF = pd.concat([DF, pd.DataFrame({'date': output['dates'][i], 'Eastings': output['shorelines'][i][:,0], 'Northings': output['shorelines'][i][:,1]})])
     
     DF['date'] = DF['date'].astype(str).apply(lambda x: x[:10])
     
-    fig = px.scatter(DF, x="col1", y="col2", color="date")
+    fig = px.scatter(DF, x="Eastings", y="Northings", color="date")
     fig.update_yaxes(
         scaleanchor = "x",
         scaleratio = 1

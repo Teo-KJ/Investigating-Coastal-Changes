@@ -26,3 +26,8 @@ class MapData:
         inputs = {'polygon': polygon, 'dates': self.period, 'sat_list': sat_list, 'sitename': sitename, 'filepath':filepath}
         
         return inputs
+    
+    def getArea(self):
+        length = self.coordinates[0][0][0] - self.coordinates[0][2][0]
+        width = self.coordinates[0][1][1] - self.coordinates[0][0][1]
+        return length * width
