@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
+from datetime import datetime
 
 def settings(inputs):
     settings = { 
@@ -50,7 +51,7 @@ def plotHistoricalShorelines(output, sitename):
     
     plt.legend();
     plt.show()
-    plt.savefig('Historical Shorelines/' + sitename + '.jpg')
+    plt.savefig(f'Historical Shorelines/{sitename}.jpg')
     
 def zoomInShorelines(output):
     fig = plt.figure(figsize=[15,8])
@@ -69,7 +70,7 @@ def zoomInShorelines(output):
     plt.legend();
     plt.show()
     
-def shorelinePlotly(output):
+def shorelinePlotly(output, sitename):
     DF = pd.DataFrame()
     
     for i in range(len(output['shorelines'])):
@@ -86,4 +87,8 @@ def shorelinePlotly(output):
         scaleanchor = "x",
         scaleratio = 1
       )
+    fig.write_html(f'Historical Shorelines/{sitename}.html')
     fig.show()
+    
+def strToDate(dateStr):
+    return datetime.strptime(dateStr, '%Y-%m-%d %H:%M:%S+00:00')
