@@ -1,4 +1,4 @@
-# Shoreline-Detection-Project
+# Investigating-Coastal-Changes-Project
 A program for a school research project.
 
 ## CoastSat Dependencies
