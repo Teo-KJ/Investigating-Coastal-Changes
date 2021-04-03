@@ -27,3 +27,5 @@ Run the following steps to ensure CoastSat dependencies.
 ## Learning
 1. Object Oriented Programming in Python
 2. Plotly and Matplotlib improved visualisation
+
+https://stackoverflow.com/questions/61171307/jupyter-notebook-shows-error-message-for-matplotlib-bad-key-text-kerning-factor

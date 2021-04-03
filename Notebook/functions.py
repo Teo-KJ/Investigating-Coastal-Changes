@@ -4,6 +4,8 @@ import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 from datetime import datetime
+import math
+import psycopg2
 
 def settings(inputs):
     settings = { 
@@ -92,3 +94,64 @@ def shorelinePlotly(output, sitename):
     
 def strToDate(dateStr):
     return datetime.strptime(dateStr, '%Y-%m-%d %H:%M:%S+00:00')
+
+# def haversine_distance(lat1, lon1, lat2, lon2):
+#     r = 6371
+#     phi1 = np.radians(lat1)
+#     phi2 = np.radians(lat2)
+#     delta_phi = np.radians(lat2 — lat1)
+#     delta_lambda = np.radians(lon2 — lon1)
+    
+#     a = np.sin(delta_phi / 2)**2 + np.cos(phi1) * np.cos(phi2) *   np.sin(delta_lambda / 2)**2
+#     res = r * (2 * np.arctan2(np.sqrt(a), np.sqrt(1 — a)))
+    
+#     return np.round(res, 2)
+
+def findDistance(north1, east1, north2, east2):
+    return math.sqrt(math.pow(east1 - east2, 2) + math.pow(north1 - north2, 2))
+
+def setUpDB(command, url):
+    """ create tables in the PostgreSQL database"""
+    
+    try:        
+        # connect to the PostgreSQL server
+        conn = psycopg2.connect(url, sslmode='require')
+        cur = conn.cursor()
+        
+        # create table one by one
+        cur.execute(command)
+        
+        # close communication with the PostgreSQL database server
+        cur.close()
+        
+        # commit the changes
+        conn.commit()
+        conn.close()
+        print('done')
+        
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+        
+def getData(command, url):
+    """ query data from the vendors table """
+    
+    conn = psycopg2.connect(url, sslmode='require')
+    
+    try:
+        cur = conn.cursor()
+        cur.execute(command)
+        print("The number of data: ", cur.rowcount)
+        row = cur.fetchone()
+
+        while row is not None:
+            print(row)
+            row = cur.fetchone()
+
+        cur.close()
+        
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+        
+    finally:
+        if conn is not None:
+            conn.close()
