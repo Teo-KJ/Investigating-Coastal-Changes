@@ -1,3 +1,4 @@
+import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
@@ -138,20 +139,13 @@ def getData(command, url):
     conn = psycopg2.connect(url, sslmode='require')
     
     try:
-        cur = conn.cursor()
-        cur.execute(command)
-        print("The number of data: ", cur.rowcount)
-        row = cur.fetchone()
-
-        while row is not None:
-            print(row)
-            row = cur.fetchone()
-
-        cur.close()
+        df = pd.read_sql(command, conn)
+        
+        if conn is not None:
+            conn.close()
+        
+        return df
         
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
         
-    finally:
-        if conn is not None:
-            conn.close()
