@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
@@ -49,7 +50,7 @@ def plotHistoricalShorelines(output, sitename):
 
     for i in range(len(output['shorelines'])):
         sl = output['shorelines'][i]
-        date = output['dates'][i]
+        date = output['date'][i]
         plt.plot(sl[:,0], sl[:,1], '.', label=date.strftime('%d-%m-%Y'))
     
     plt.legend();
@@ -66,7 +67,7 @@ def zoomInShorelines(output):
 
     for i in range(len(output['shorelines'])):
         sl = output['shorelines'][i]
-        date = output['dates'][i]
+        date = output['date'][i]
         plt.margins(x=0, y=-0.25)
         plt.plot(sl[:,0], sl[:,1], '.', label=date.strftime('%d-%m-%Y'))
     
@@ -77,7 +78,7 @@ def shorelinePlotly(output, sitename):
     DF = pd.DataFrame()
     
     for i in range(len(output['shorelines'])):
-        DF = pd.concat([DF, pd.DataFrame({'date': output['dates'][i], 'Eastings': output['shorelines'][i][:,0], 'Northings': output['shorelines'][i][:,1]})], ignore_index=True)
+        DF = pd.concat([DF, pd.DataFrame({'date': output['date'][i], 'Eastings': output['shorelines'][i][:,0], 'Northings': output['shorelines'][i][:,1]})], ignore_index=True)
     
     DF['date'] = DF['date'].astype(str).apply(lambda x: x[:10])
     
@@ -94,7 +95,7 @@ def shorelinePlotly(output, sitename):
     fig.show()
     
 def strToDate(dateStr):
-    return datetime.strptime(dateStr, '%Y-%m-%d %H:%M:%S+00:00')
+    return datetime.strptime(dateStr, '%Y-%m-%d %H:%M:%S')#+00:00
 
 # def haversine_distance(lat1, lon1, lat2, lon2):
 #     r = 6371
@@ -149,3 +150,24 @@ def getData(command, url):
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
         
+def getShorelinesFromSql(data):
+    data = data.replace(' ', '')
+    data = data.replace('[', '')
+    data = data.replace(']', '')
+    data = data.split(',')
+    
+    mainlist = []
+
+    for i in range(0, len(data), 2):
+        mainlist.append([float(data[i]), float(data[i+1])])
+
+    return np.asarray(mainlist, dtype=np.float64)
+
+def enterDataFromJSONtoSql(dataframe, url):
+    for index, row in dataframe.iterrows():
+        command = (
+            '''INSERT INTO shorelineData VALUES ('%s', '%s', '%s', '%s', %f, %f, %d, '%s');''' 
+            % (row.location, str(row.dates), row.shorelines, row.filename, row.cloud_cover, row.geoaccuracy, row.idx, row.satname)
+            )
+
+        setUpDB(command, url)
