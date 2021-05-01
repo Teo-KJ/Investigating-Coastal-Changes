@@ -95,22 +95,16 @@ def shorelinePlotly(output, sitename):
     fig.show()
     
 def strToDate(dateStr):
-    return datetime.strptime(dateStr, '%Y-%m-%d %H:%M:%S')#+00:00
+    return datetime.strptime(dateStr, '%Y-%m-%d %H:%M:%S')
 
-# def haversine_distance(lat1, lon1, lat2, lon2):
-#     r = 6371
-#     phi1 = np.radians(lat1)
-#     phi2 = np.radians(lat2)
-#     delta_phi = np.radians(lat2 — lat1)
-#     delta_lambda = np.radians(lon2 — lon1)
-    
-#     a = np.sin(delta_phi / 2)**2 + np.cos(phi1) * np.cos(phi2) *   np.sin(delta_lambda / 2)**2
-#     res = r * (2 * np.arctan2(np.sqrt(a), np.sqrt(1 — a)))
-    
-#     return np.round(res, 2)
+def strToDateWithGMT(dateStr):
+    return datetime.strptime(dateStr, '%Y-%m-%d %H:%M:%S+00:00')
 
 def findDistance(north1, east1, north2, east2):
     return math.sqrt(math.pow(east1 - east2, 2) + math.pow(north1 - north2, 2))
+
+def findPercentageDistDiff(a, b):
+    return (b-a) /a
 
 def setUpDB(command, url):
     """ create tables in the PostgreSQL database"""
@@ -167,7 +161,41 @@ def enterDataFromJSONtoSql(dataframe, url):
     for index, row in dataframe.iterrows():
         command = (
             '''INSERT INTO shorelineData VALUES ('%s', '%s', '%s', '%s', %f, %f, %d, '%s');''' 
-            % (row.location, str(row.dates), row.shorelines, row.filename, row.cloud_cover, row.geoaccuracy, row.idx, row.satname)
+            % (row.location, row.dates, row.shorelines, row.filename, row.cloud_cover, row.geoaccuracy, row.idx, row.satname)
             )
 
         setUpDB(command, url)
+        
+def findPercentageDifferenceBetweenDates(dataframe, previousIndex, afterIndex):
+    
+    significantFigRound = -3
+    # distList = []
+    percentageChangeList = []
+
+    for prev, aft in zip(dataframe['shorelines'][previousIndex].tolist(),
+                         dataframe['shorelines'][afterIndex].tolist()):
+
+        round_prev = round(prev[1], significantFigRound)
+        round_aft = round(aft[1], significantFigRound)
+
+        if round_prev == round_aft:
+            dist = findDistance(round_prev, prev[0], round_aft, aft[0])
+            percentageDiff = findPercentageDistDiff(aft[0], prev[0]) * 100
+
+            if percentageDiff >= 0:
+                percentageChangeList.append(percentageDiff)
+
+            # distList.append(dist)
+            
+    return percentageChangeList
+
+def removeExcessDateStr(url):
+    command = (
+        '''
+        UPDATE shorelineData
+        SET date = LEFT(date, LENGTH(date)-6)
+        WHERE LENGTH(date)>19;
+        '''
+        )
+
+    setUpDB(command, url)
