@@ -168,7 +168,7 @@ def enterDataFromJSONtoSql(dataframe, url):
         
 def findPercentageDifferenceBetweenDates(dataframe, previousIndex, afterIndex):
     
-    significantFigRound = -3
+    significantFigRound = -2
     # distList = []
     percentageChangeList = []
 
@@ -177,17 +177,23 @@ def findPercentageDifferenceBetweenDates(dataframe, previousIndex, afterIndex):
 
         round_prev = round(prev[1], significantFigRound)
         round_aft = round(aft[1], significantFigRound)
-
+        
         if round_prev == round_aft:
             dist = findDistance(round_prev, prev[0], round_aft, aft[0])
             percentageDiff = findPercentageDistDiff(aft[0], prev[0]) * 100
-
-            if percentageDiff >= 0:
-                percentageChangeList.append(percentageDiff)
+            percentageChangeList.append(abs(percentageDiff))
 
             # distList.append(dist)
             
     return percentageChangeList
+
+def getStatisticsOfDifference(dataframe, startIndex, endIndex):
+    percentageChangeList = findPercentageDifferenceBetweenDates(dataframe, startIndex, endIndex)
+    
+    print(pd.DataFrame(percentageChangeList).describe())
+    
+    fig = px.histogram(np.array(percentageChangeList), marginal="box")
+    fig.show()
 
 def removeExcessDateStr(url):
     command = (
