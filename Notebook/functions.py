@@ -1,13 +1,19 @@
+import os
+import pickle
 import pandas as pd
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib import gridspec
 import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 from datetime import datetime
 import math
 import psycopg2
+
+# CoastSat
+from coastsat import SDS_download, SDS_preprocess, SDS_shoreline, SDS_tools, SDS_transects, SDS_islands
 
 def settings(inputs):
     settings = { 
@@ -50,7 +56,7 @@ def plotHistoricalShorelines(output, sitename):
 
     for i in range(len(output['shorelines'])):
         sl = output['shorelines'][i]
-        date = output['date'][i]
+        date = output['dates'][i]
         plt.plot(sl[:,0], sl[:,1], '.', label=date.strftime('%d-%m-%Y'))
     
     plt.legend();
@@ -67,7 +73,7 @@ def zoomInShorelines(output):
 
     for i in range(len(output['shorelines'])):
         sl = output['shorelines'][i]
-        date = output['date'][i]
+        date = output['dates'][i]
         plt.margins(x=0, y=-0.25)
         plt.plot(sl[:,0], sl[:,1], '.', label=date.strftime('%d-%m-%Y'))
     
@@ -78,11 +84,15 @@ def shorelinePlotly(output, sitename):
     DF = pd.DataFrame()
     
     for i in range(len(output['shorelines'])):
-        DF = pd.concat([DF, pd.DataFrame({'date': output['date'][i], 'Eastings': output['shorelines'][i][:,0], 'Northings': output['shorelines'][i][:,1]})], ignore_index=True)
+        DF = pd.concat([DF, 
+                        pd.DataFrame({'dates': output['dates'][i], 'Eastings': output['shorelines'][i][:,0], 'Northings': output['shorelines'][i][:,1]})], 
+                       ignore_index=True)
     
-    DF['date'] = DF['date'].astype(str).apply(lambda x: x[:10])
+    DF['dates'] = DF['dates'].astype(str).apply(lambda x: x[:10])
     
-    fig = px.scatter(DF, x="Eastings", y="Northings", color="date", title=f"Shorelines for {sitename[:-3]} with {sitename[-2:]}")
+    fig = px.scatter(DF, x="Eastings", y="Northings", color="dates", 
+                     text=DF.index,
+                     title=f"Shorelines for {sitename[:-3]} with {sitename[-2:]}")
     fig.update_yaxes(
         scaleanchor = "x",
         scaleratio = 1
@@ -166,42 +176,68 @@ def enterDataFromJSONtoSql(dataframe, url):
 
         setUpDB(command, url)
         
-def findPercentageDifferenceBetweenDates(dataframe, previousIndex, afterIndex):
+# def findPercentageDifferenceBetweenDates(dataframe, previousIndex, afterIndex):
     
-    significantFigRound = -2
-    # distList = []
-    percentageChangeList = []
+#     significantFigRound = -2
+#     percentageChangeList = []
 
-    for prev, aft in zip(dataframe['shorelines'][previousIndex].tolist(),
-                         dataframe['shorelines'][afterIndex].tolist()):
+#     for prev, aft in zip(dataframe['shorelines'][previousIndex].tolist(),
+#                          dataframe['shorelines'][afterIndex].tolist()):
 
-        round_prev = round(prev[1], significantFigRound)
-        round_aft = round(aft[1], significantFigRound)
+#         round_prev = round(prev[1], significantFigRound)
+#         round_aft = round(aft[1], significantFigRound)
         
-        if round_prev == round_aft:
-            dist = findDistance(round_prev, prev[0], round_aft, aft[0])
-            percentageDiff = findPercentageDistDiff(aft[0], prev[0]) * 100
-            percentageChangeList.append(abs(percentageDiff))
-
-            # distList.append(dist)
+#         if round_prev == round_aft:
+#             dist = findDistance(round_prev, prev[0], round_aft, aft[0])
+#             percentageDiff = findPercentageDistDiff(aft[0], prev[0]) * 100
+#             percentageChangeList.append(abs(percentageDiff))
             
-    return percentageChangeList
+#     return percentageChangeList
 
-def getStatisticsOfDifference(dataframe, startIndex, endIndex):
-    percentageChangeList = findPercentageDifferenceBetweenDates(dataframe, startIndex, endIndex)
+# def getStatisticsOfDifference(dataframe, startIndex, endIndex):
+#     percentageChangeList = findPercentageDifferenceBetweenDates(dataframe, startIndex, endIndex)
     
-    print(pd.DataFrame(percentageChangeList).describe())
+#     print(pd.DataFrame(percentageChangeList).describe())
     
-    fig = px.histogram(np.array(percentageChangeList), marginal="box")
-    fig.show()
+#     fig = px.histogram(np.array(percentageChangeList), marginal="box")
+#     fig.show()
 
 def removeExcessDateStr(url):
     command = (
         '''
         UPDATE shorelineData
-        SET date = LEFT(date, LENGTH(date)-6)
-        WHERE LENGTH(date)>19;
+        SET dates = LEFT(dates, LENGTH(date)-6)
+        WHERE LENGTH(dates)>19;
         '''
         )
 
     setUpDB(command, url)
+    
+def getTransacts(inputs, output, along_dist = 25):        
+    matplotlib.use('Qt5Agg')
+    transects = SDS_transects.draw_transects(output, settings(inputs))
+    
+    settingsOfInputs = settings(inputs)
+    settingsOfInputs['along_dist'] = along_dist
+    
+    cross_distance = SDS_transects.compute_intersection(output, transects, settingsOfInputs)
+    
+    return cross_distance
+    
+def visualiseTransacts(cross_distance, output):
+    fig = plt.figure(figsize=[15,8], tight_layout=True)
+    gs = gridspec.GridSpec(len(cross_distance),1)
+    gs.update(left=0.05, right=0.95, bottom=0.05, top=0.95, hspace=0.05)
+    
+    for i,key in enumerate(cross_distance.keys()):
+        
+        if np.all(np.isnan(cross_distance[key])):
+            continue
+            
+        ax = fig.add_subplot(gs[i,0])
+        ax.grid(linestyle=':', color='0.5')
+        ax.set_ylim([-50,50])
+        ax.plot(output['dates'], cross_distance[key]- np.nanmedian(cross_distance[key]), '-o', ms=6, mfc='w')
+        ax.set_ylabel('distance [m]', fontsize=12)
+        ax.text(0.5,0.95, key, bbox=dict(boxstyle="square", ec='k',fc='w'), ha='center',
+                va='top', transform=ax.transAxes, fontsize=14)
