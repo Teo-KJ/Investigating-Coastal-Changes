@@ -222,9 +222,9 @@ def getTransacts(inputs, output, along_dist = 25):
     
     cross_distance = SDS_transects.compute_intersection(output, transects, settingsOfInputs)
     
-    return cross_distance
+    return transects, cross_distance
     
-def visualiseTransacts(cross_distance, output):
+def visualiseTransacts(cross_distance, output, sitename):
     fig = plt.figure(figsize=[15,8], tight_layout=True)
     gs = gridspec.GridSpec(len(cross_distance),1)
     gs.update(left=0.05, right=0.95, bottom=0.05, top=0.95, hspace=0.05)
@@ -241,3 +241,25 @@ def visualiseTransacts(cross_distance, output):
         ax.set_ylabel('distance [m]', fontsize=12)
         ax.text(0.5,0.95, key, bbox=dict(boxstyle="square", ec='k',fc='w'), ha='center',
                 va='top', transform=ax.transAxes, fontsize=14)
+        
+    plt.savefig(f'Historical Shorelines/{sitename} Shoreline Changes.jpg')
+        
+def plotLabelledTransacts(transects, output, sitename):
+    fig = plt.figure(figsize=[15,8], tight_layout=True)
+    plt.axis('equal')
+    plt.xlabel('Eastings')
+    plt.ylabel('Northings')
+    plt.grid(linestyle=':', color='0.5')
+
+    for i in range(len(output['shorelines'])):
+        sl = output['shorelines'][i]
+        date = output['dates'][i]
+        plt.plot(sl[:,0], sl[:,1], '.', label=date.strftime('%d-%m-%Y'))
+
+    for i,key in enumerate(list(transects.keys())):
+        plt.plot(transects[key][0,0],transects[key][0,1], 'bo', ms=5)
+        plt.plot(transects[key][:,0],transects[key][:,1],'k-',lw=1)
+        plt.text(transects[key][0,0]-100, transects[key][0,1]+100, key,
+                    va='center', ha='right', bbox=dict(boxstyle="square", ec='k',fc='w'))
+        
+    plt.savefig(f'Historical Shorelines/{sitename} Transacts.jpg')
