@@ -61,7 +61,7 @@ def plotHistoricalShorelines(filepath, output, sitename):
     
     plt.legend();
     plt.show()
-    plt.savefig(filepath + f'/{sitename}.jpg')
+    plt.savefig(f'{filepath['filepath']}/{filepath['sitename']}/{sitename}.jpg')
     
 def zoomInShorelines(output):
     fig = plt.figure(figsize=[15,8])
@@ -101,7 +101,7 @@ def shorelinePlotly(filepath, output, sitename):
         scaleanchor = "x",
         scaleratio = 1
       )
-    fig.write_html(filepath + f'/{sitename}.html')
+    fig.write_html(f'{filepath['filepath']}/{filepath['sitename']}/{sitename}.html')
     fig.show()
     
 def strToDate(dateStr):
@@ -216,7 +216,7 @@ def visualiseTransacts(cross_distance, output, sitename, filepath):
         ax.text(0.5,0.95, key, bbox=dict(boxstyle="square", ec='k',fc='w'), ha='center',
                 va='top', transform=ax.transAxes, fontsize=14)
         
-    plt.savefig(filepath + f'/{sitename} Shoreline Changes.jpg')
+    plt.savefig(f'{filepath['filepath']}/{filepath['sitename']}/{sitename} Shoreline Changes.jpg')
         
 def plotLabelledTransacts(transects, output, sitename, filepath):
     fig = plt.figure(figsize=[15,8], tight_layout=True)
@@ -236,4 +236,4 @@ def plotLabelledTransacts(transects, output, sitename, filepath):
         plt.text(transects[key][0,0]-100, transects[key][0,1]+100, key,
                     va='center', ha='right', bbox=dict(boxstyle="square", ec='k',fc='w'))
         
-    plt.savefig(filepath + f'/{sitename} Transacts.jpg')
+    plt.savefig(f'{filepath['filepath']}/{filepath['sitename']}/{sitename} Transacts.jpg')
