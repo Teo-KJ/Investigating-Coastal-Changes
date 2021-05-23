@@ -46,7 +46,7 @@ def switchCoordinates(coordinates):
 
     return coordinates
 
-def plotHistoricalShorelines(output, sitename):
+def plotHistoricalShorelines(filepath, output, sitename):
     fig = plt.figure(figsize=[15,8])
 
     plt.axis('equal')
@@ -61,7 +61,7 @@ def plotHistoricalShorelines(output, sitename):
     
     plt.legend();
     plt.show()
-    plt.savefig(f'Historical Shorelines/{sitename}.jpg')
+    plt.savefig(filepath + f'/{sitename}.jpg')
     
 def zoomInShorelines(output):
     fig = plt.figure(figsize=[15,8])
@@ -80,7 +80,7 @@ def zoomInShorelines(output):
     plt.legend();
     plt.show()
     
-def shorelinePlotly(output, sitename):
+def shorelinePlotly(filepath, output, sitename):
     DF = pd.DataFrame()
     
     for i in range(len(output['shorelines'])):
@@ -101,7 +101,7 @@ def shorelinePlotly(output, sitename):
         scaleanchor = "x",
         scaleratio = 1
       )
-    fig.write_html(f'Historical Shorelines/{sitename}.html')
+    fig.write_html(filepath + f'/{sitename}.html')
     fig.show()
     
 def strToDate(dateStr):
@@ -110,11 +110,11 @@ def strToDate(dateStr):
 def strToDateWithGMT(dateStr):
     return datetime.strptime(dateStr, '%Y-%m-%d %H:%M:%S+00:00')
 
-def findDistance(north1, east1, north2, east2):
-    return math.sqrt(math.pow(east1 - east2, 2) + math.pow(north1 - north2, 2))
+# def findDistance(north1, east1, north2, east2):
+#     return math.sqrt(math.pow(east1 - east2, 2) + math.pow(north1 - north2, 2))
 
-def findPercentageDistDiff(a, b):
-    return (b-a) /a
+# def findPercentageDistDiff(a, b):
+#     return (b-a) /a
 
 def setUpDB(command, url):
     """ create tables in the PostgreSQL database"""
@@ -180,7 +180,7 @@ def removeExcessDateStr(url):
     command = (
         '''
         UPDATE shorelineData
-        SET dates = LEFT(dates, LENGTH(date)-6)
+        SET dates = LEFT(dates, LENGTH(dates)-6)
         WHERE LENGTH(dates)>19;
         '''
         )
@@ -198,7 +198,7 @@ def getTransacts(inputs, output, along_dist = 25):
     
     return transects, cross_distance
     
-def visualiseTransacts(cross_distance, output, sitename):
+def visualiseTransacts(cross_distance, output, sitename, filepath):
     fig = plt.figure(figsize=[15,8], tight_layout=True)
     gs = gridspec.GridSpec(len(cross_distance),1)
     gs.update(left=0.05, right=0.95, bottom=0.05, top=0.95, hspace=0.05)
@@ -216,9 +216,9 @@ def visualiseTransacts(cross_distance, output, sitename):
         ax.text(0.5,0.95, key, bbox=dict(boxstyle="square", ec='k',fc='w'), ha='center',
                 va='top', transform=ax.transAxes, fontsize=14)
         
-    plt.savefig(f'Historical Shorelines/{sitename} Shoreline Changes.jpg')
+    plt.savefig(filepath + f'/{sitename} Shoreline Changes.jpg')
         
-def plotLabelledTransacts(transects, output, sitename):
+def plotLabelledTransacts(transects, output, sitename, filepath):
     fig = plt.figure(figsize=[15,8], tight_layout=True)
     plt.axis('equal')
     plt.xlabel('Eastings')
@@ -236,4 +236,4 @@ def plotLabelledTransacts(transects, output, sitename):
         plt.text(transects[key][0,0]-100, transects[key][0,1]+100, key,
                     va='center', ha='right', bbox=dict(boxstyle="square", ec='k',fc='w'))
         
-    plt.savefig(f'Historical Shorelines/{sitename} Transacts.jpg')
+    plt.savefig(filepath + f'/{sitename} Transacts.jpg')
