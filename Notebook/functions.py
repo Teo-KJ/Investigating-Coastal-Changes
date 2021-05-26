@@ -46,7 +46,7 @@ def switchCoordinates(coordinates):
 
     return coordinates
 
-def plotHistoricalShorelines(filepath, output, sitename):
+def plotHistoricalShorelines(output, sitename, inputSettings):
     fig = plt.figure(figsize=[15,8])
 
     plt.axis('equal')
@@ -61,7 +61,11 @@ def plotHistoricalShorelines(filepath, output, sitename):
     
     plt.legend();
     plt.show()
-    plt.savefig(f'{filepath['filepath']}/{filepath['sitename']}/{sitename}.jpg')
+    
+    filepath = inputSettings['filepath']
+    site = inputSettings['sitename']
+    
+    plt.savefig(f'{filepath}/{site}/{sitename}.jpg')
     
 def zoomInShorelines(output):
     fig = plt.figure(figsize=[15,8])
@@ -80,7 +84,7 @@ def zoomInShorelines(output):
     plt.legend();
     plt.show()
     
-def shorelinePlotly(filepath, output, sitename):
+def shorelinePlotly(output, sitename, inputSettings):
     DF = pd.DataFrame()
     
     for i in range(len(output['shorelines'])):
@@ -101,7 +105,11 @@ def shorelinePlotly(filepath, output, sitename):
         scaleanchor = "x",
         scaleratio = 1
       )
-    fig.write_html(f'{filepath['filepath']}/{filepath['sitename']}/{sitename}.html')
+    
+    filepath = inputSettings['filepath']
+    site = inputSettings['sitename']
+    
+    fig.write_html(f'{filepath}/{site}/{sitename}.html')
     fig.show()
     
 def strToDate(dateStr):
@@ -109,12 +117,6 @@ def strToDate(dateStr):
 
 def strToDateWithGMT(dateStr):
     return datetime.strptime(dateStr, '%Y-%m-%d %H:%M:%S+00:00')
-
-# def findDistance(north1, east1, north2, east2):
-#     return math.sqrt(math.pow(east1 - east2, 2) + math.pow(north1 - north2, 2))
-
-# def findPercentageDistDiff(a, b):
-#     return (b-a) /a
 
 def setUpDB(command, url):
     """ create tables in the PostgreSQL database"""
@@ -138,9 +140,7 @@ def setUpDB(command, url):
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
         
-def getData(command, url):
-    """ query data from the vendors table """
-    
+def getData(command, url):    
     conn = psycopg2.connect(url, sslmode='require')
     
     try:
@@ -198,7 +198,7 @@ def getTransacts(inputs, output, along_dist = 25):
     
     return transects, cross_distance
     
-def visualiseTransacts(cross_distance, output, sitename, filepath):
+def visualiseTransacts(cross_distance, output, sitename, inputSettings):
     fig = plt.figure(figsize=[15,8], tight_layout=True)
     gs = gridspec.GridSpec(len(cross_distance),1)
     gs.update(left=0.05, right=0.95, bottom=0.05, top=0.95, hspace=0.05)
@@ -216,9 +216,12 @@ def visualiseTransacts(cross_distance, output, sitename, filepath):
         ax.text(0.5,0.95, key, bbox=dict(boxstyle="square", ec='k',fc='w'), ha='center',
                 va='top', transform=ax.transAxes, fontsize=14)
         
-    plt.savefig(f'{filepath['filepath']}/{filepath['sitename']}/{sitename} Shoreline Changes.jpg')
+    filepath = inputSettings['filepath']
+    site = inputSettings['sitename']
+    
+    plt.savefig(f'{filepath}/{site}/{sitename} Shoreline Changes.jpg')
         
-def plotLabelledTransacts(transects, output, sitename, filepath):
+def plotLabelledTransacts(transects, output, sitename, inputSettings):
     fig = plt.figure(figsize=[15,8], tight_layout=True)
     plt.axis('equal')
     plt.xlabel('Eastings')
@@ -236,4 +239,7 @@ def plotLabelledTransacts(transects, output, sitename, filepath):
         plt.text(transects[key][0,0]-100, transects[key][0,1]+100, key,
                     va='center', ha='right', bbox=dict(boxstyle="square", ec='k',fc='w'))
         
-    plt.savefig(f'{filepath['filepath']}/{filepath['sitename']}/{sitename} Transacts.jpg')
+    filepath = inputSettings['filepath']
+    site = inputSettings['sitename']
+        
+    plt.savefig(f'{filepath}/{site}/{sitename} Transacts.jpg')
