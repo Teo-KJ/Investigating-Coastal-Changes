@@ -243,3 +243,16 @@ def plotLabelledTransacts(transects, output, sitename, inputSettings):
     site = inputSettings['sitename']
         
     plt.savefig(f'{filepath}/{site}/{sitename} Transacts.jpg')
+    
+def getDataByLocation(databaseURL, dataframe, locationCounter):
+    query = f"SELECT * FROM shorelineData WHERE location = '{dataframe.location.values[locationCounter-1]}' ORDER BY dates;"
+    dataframe = getData(query, databaseURL)
+    dataframe['dates'] = dataframe['dates'].apply(lambda x: strToDate(x))
+    dataframe['shorelines'] = dataframe['shorelines'].apply(lambda x: getShorelinesFromSql(x))
+
+    query = f"SELECT * FROM polygonData WHERE location = '{dataframe.location.values[locationCounter-1]}';"
+    polygonData = getData(query, databaseURL)
+    polygon = getShorelinesFromSql(polygonData['polygon'][0]).tolist()
+    folderName = polygonData['folder_name'][0]
+    
+    return dataframe, polygon, folderName
