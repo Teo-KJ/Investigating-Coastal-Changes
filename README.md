@@ -1,27 +1,24 @@
 # Investigating-Coastal-Changes-Project
-A program for a school research project.
+A program developed for a school research project, as part of Nanyang Technological University Undergraduate Research Experience on CAmpus (URECA).
 
-## CoastSat Dependencies
+## Objective
+1. 
+
+## Running the CoastSat Dependencies
 Run the following steps to ensure CoastSat dependencies.
 
-1. Go to root directory and download the required environment.
-
-> Create CoastSat environment
-
+1. Go to root directory and download the required environment.  
+> Create CoastSat environment  
 `conda env create -f environment.yml -n coastsat`
 
-2. Activate and use environment
-
-> Activate environment
-
+2. Activate and use environment  
+> Activate environment  
 `conda activate coastsat`
 
-3. Open Jupyter Notebook
-
+3. Open Jupyter Notebook  
 `jupyter notebook`
 
-4. Deactivate environment
-
+4. Deactivate environment  
 `conda deactivate`
 
 ## Learning
