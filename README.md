@@ -1,4 +1,4 @@
-# Investigating-Coastal-Changes-Project
+# Investigating-Coastal-Changes
 A program developed for a school research project, as part of Nanyang Technological University's Undergraduate Research Experience on Campus (URECA).
 
 ## Objective
