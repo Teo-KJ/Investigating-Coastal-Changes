@@ -12,6 +12,7 @@ This program is built using the Python programming language, and it builds on th
 * Through this program, the user can enter the location (in latitude, longitude pairs), the period of interest (start and end date) and the selected satellite (e.g. Landsat 5, Sentinel-2 and etc.) in order to extract the images.
 * After extraction, the user can manually select good quality images for analysis and use CoastSat's pre-trained image segmentation model to trace the shorelines for each image.
 * Shorelines data are then stored into a PostgreSQL database for future analysis and reference.
+* Reflect shorelines data through Plotly and Matplotlib visualisations.
 * With available shorelines data, perform analysis of shoreline changes at the locations using CoastSat's transects feature.
 
 **Database:** PostgreSQL on Heroku
